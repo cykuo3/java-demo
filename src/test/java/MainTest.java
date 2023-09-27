@@ -1,27 +1,14 @@
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
+import com.google.common.base.Splitter;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Random;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 public class MainTest {
 
@@ -368,4 +356,60 @@ public class MainTest {
         System.out.println(cache.get("key"));
     }
 
+    @Test
+    public void test20(){
+        String str = "1";
+
+        List<Integer> blackCityIdList = Splitter.on(",").splitToList(str)
+                .stream().map(Integer::parseInt).collect(Collectors.toList());
+
+        System.out.println(blackCityIdList.contains(1));
+
+        int[] arr = new int[]{1,2,3};
+        Arrays.sort(arr);
+        System.out.println(arr);
+
+        HashMap<Integer,Integer> preNum = new HashMap<>();
+        preNum.getOrDefault(1,0);
+
+    }
+
+    @Test
+    public void test21() {
+        int[] nums = new int[]{1, 1, 1};
+        int k = 2;
+
+        //前缀和以及出现的次数
+        HashMap<Integer, Integer> preNum = new HashMap<>();
+        preNum.put(0,1);
+        int pre = 0;
+        int total = 0;
+        for (int num : nums) {
+            pre += num;
+            total += preNum.getOrDefault( pre - k, 0);
+            preNum.put(pre, preNum.getOrDefault(pre, 0) + 1);
+        }
+        System.out.println(total);
+    }
+
+    @Test
+    public void test22() {
+        int[] arr = new int[]{2, 3, 4, 1, 2, 3, 4, 5, 2, 6, 7, 3};
+
+        Map<Integer, Integer> leftNumIndex = new HashMap<>();
+
+        Integer max = 0;
+
+        for (int i = 0; i < arr.length; i++) {
+            int num = arr[i];
+            if (!leftNumIndex.containsKey(num)) {
+                leftNumIndex.put(num, i);
+            } else {
+                Integer leftIndex = leftNumIndex.get(num);
+                max = Math.max(max, i - leftIndex + 1);
+            }
+        }
+
+        System.out.println(max);
+    }
 }
