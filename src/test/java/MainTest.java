@@ -1,18 +1,24 @@
 import cn.hutool.crypto.digest.MD5;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONObject;
+import com.alibaba.csp.sentinel.util.StringUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Splitter;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Maps;
+import demo.MyAqs;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -412,4 +418,299 @@ public class MainTest {
 
         System.out.println(max);
     }
+
+    @Test
+    public void test23() {
+        String str = " ";
+        System.out.println(StringUtil.isEmpty(str));
+        System.out.println(StringUtil.isBlank(str));
+    }
+
+    @Test
+    public void test24(){
+        String str = "babad";
+        System.out.println(str.substring(0, 5));
+
+    }
+
+    @Test
+    public void test25(){
+        String res = longestPalindrome("aacabdkacaa");
+        System.out.println(res);
+
+    }
+
+
+    public static String longestPalindrome(String s) {
+        char[] cA = s.toCharArray();
+        int length = s.length();
+
+        //初始化状态数组
+        int[][] dp = new int[length][length];
+        //每个元素都是长度为1的回文串
+        for(int i = 0;i<length ;i++){
+            dp[i][i] = 1;
+        }
+
+
+        //相邻的两个元素相等，长度为2的回文串
+        for(int i = 0;i<length-1;i++){
+            if(cA[i] == cA[i+1]){
+                dp[i][i+1] = 2;
+            }else{
+                dp[i][i+1] = -1;
+                //表示不是回文串
+            }
+        }
+
+        //k表示j-i的值
+        for(int k = 2;k < length;k++){
+            for(int i = 0;i + k < length;i++){
+                if(dp[i+1][i + k -1] == -1){
+                    dp[i][i+k] = -1;
+                    continue;
+                }
+                if(cA[i] == cA[i+k]){
+                    dp[i][i+k] = dp[i+1][i + k -1] + 2;
+                }else{
+                    dp[i][i+k] = -1;
+                }
+            }
+        }
+
+        int max = 0;
+        String target = "";
+        for(int i = 0;i<length;i++){
+            for(int j = i;j<length;j++){
+                if(dp[i][j] > max){
+                    target = s.substring(i,j + 1);
+                    max = j - i + 1;
+                }
+            }
+        }
+
+        return target;
+
+    }
+
+    @Test
+    public void test26() throws InterruptedException {
+        ThreadPoolExecutor es = new ThreadPoolExecutor(5,5,10,TimeUnit.SECONDS,new LinkedBlockingQueue<>());
+
+        Future<?> first = es.submit(() -> {
+            System.out.println("第一个任务执行");
+            try {
+                Thread.sleep(100000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        for (int i = 0; i < 4; i++) {
+            es.submit(() -> {
+                try {
+                    System.out.println("后续任务开始执行");
+                    first.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+        es.submit(() -> {
+            System.out.println("其他任务执行");
+        });
+
+        for (int i = 0; i < 1000; i++) {
+            Thread.sleep(1000);
+            System.out.println(es);
+        }
+
+    }
+
+    @Test
+    public void test27(){
+        String s = "2023-11-01";
+        System.out.println(s.substring(0, 10));
+    }
+
+    @Test
+    public void test28(){
+        CountDownLatch cdl = new CountDownLatch(10);
+        for (int i = 0; i < 20; i++) cdl.countDown();
+        System.out.println(cdl.getCount());
+    }
+
+    @Test
+    public void test29() throws InterruptedException {
+        CountDownLatch cdl = new CountDownLatch(1);
+        cdl.await();
+    }
+
+    @Test
+    public void test30(){
+        String str = "[{\"trace_name\":\"出租车司乘撮合\",\"arg3\":\"\",\"arg2\":\"\",\"arg4\":\"\",\"application\":\"taxibid-thrift-service\",\"user_id\":\"173255225\",\"arg1\":\"\",\"business_type\":\"rideId\",\"jaeger_trace_id\":\"\",\"arg0\":\"\",\"extra\":\"{\\\"派单方式\\\":\\\"指派\\\"}\",\"event_name\":\"接收到AI回调\",\"stack_trace\":\"com.didapinche.thrift.taxibid.thriftimpl.TaxibidThriftServiceImpl_bidCallbackDefault:206\",\"business_id\":\"1462817820197781504\",\"event_time\":\"2023-11-23 00:00:08.053\",\"tenant\":\"\"}]";
+        JSONArray jsonArray = JSON.parseArray(str);
+        Object o = jsonArray.get(0);
+        JSONObject jo = (JSONObject)o;
+        System.out.println(jo.get("trace_name").toString());
+        JSONObject extra = jo.getJSONObject("extra");
+        extra.put("测试KEY",jo.getString("trace_name"));
+        jo.put("extra",extra);
+        System.out.println(JSON.toJSONString(jsonArray));
+    }
+
+    /**
+     * ab线程交替打印数字
+     */
+    @Test
+    public void test31() throws InterruptedException {
+
+        ReentrantLock lock = new ReentrantLock(true);
+        Object obj = new Object();
+//        Condition condition = lock.newCondition();
+        new Thread(() -> {
+            for (int i = 1; i < 100; i+=2) {
+                //获取锁
+                synchronized (obj){
+                    System.out.println(i);
+                    obj.notifyAll();
+                    try {
+                        obj.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }).start();
+
+        new Thread(() -> {
+            for (int i = 2; i < 100; i+=2) {
+                synchronized (obj){
+                    System.out.println(i);
+                    obj.notifyAll();
+                    try {
+                        obj.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+            }
+        }).start();
+
+        Thread.sleep(100000);
+    }
+
+    /**
+     * abc线程交替打印数字
+     */
+    @Test
+    public void test32() throws InterruptedException {
+
+        ReentrantLock lock = new ReentrantLock();
+        Condition con1 = lock.newCondition();
+        Condition con2 = lock.newCondition();
+        Condition con3 = lock.newCondition();
+        new Thread(() -> {
+            for (int i = 1; i < 100; i += 3) {
+                //获取锁
+                lock.lock();
+                System.out.println(Thread.currentThread().getName() + ":" + i);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                con2.signal();
+                try {
+                    con1.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                lock.unlock();
+            }
+        }, "线程1").start();
+
+        new Thread(() -> {
+            for (int i = 2; i < 100; i += 3) {
+                lock.lock();
+                System.out.println(Thread.currentThread().getName() + ":" + i);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                con3.signal();
+                try {
+                    con2.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                lock.unlock();
+            }
+        }, "线程2").start();
+
+        new Thread(() -> {
+            for (int i = 3; i < 100; i += 3) {
+                lock.lock();
+                System.out.println(Thread.currentThread().getName() + ":" + i);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                con1.signal();
+                try {
+                    con3.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                lock.unlock();
+            }
+        }, "线程3").start();
+
+        Thread.sleep(100000);
+    }
+
+    /**
+     * 使用LockSupport交替打印数字
+     * @throws InterruptedException
+     */
+    @Test
+    public void test33() throws InterruptedException {
+        final Map<Integer, Thread> tMap = Maps.newHashMap();
+        Thread threadA = new Thread(() -> {
+            for (int i = 1; i < 100; i += 3) {
+                System.out.println(Thread.currentThread().getName() + ":" + i);
+                LockSupport.unpark(tMap.get(2));
+                LockSupport.park();
+            }
+        }, "线程A");
+        Thread threadB = new Thread(() -> {
+            for (int i = 2; i < 100; i += 3) {
+                System.out.println(Thread.currentThread().getName() + ":" + i);
+                LockSupport.unpark(tMap.get(3));
+                LockSupport.park();
+            }
+        }, "线程B");
+
+        Thread threadC = new Thread(() -> {
+            for (int i = 3; i < 100; i += 3) {
+                System.out.println(Thread.currentThread().getName() + ":" + i);
+                LockSupport.unpark(tMap.get(1));
+                LockSupport.park();
+            }
+        }, "线程C");
+        tMap.put(1, threadA);
+        tMap.put(2, threadB);
+        tMap.put(3, threadC);
+        threadA.start();
+        Thread.sleep(100);
+        threadB.start();
+        Thread.sleep(100);
+        threadC.start();
+        Thread.sleep(1000);
+    }
+
+
 }
