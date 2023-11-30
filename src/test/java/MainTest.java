@@ -8,7 +8,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Maps;
-import demo.MyAqs;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
@@ -19,7 +18,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -736,7 +734,7 @@ public class MainTest {
             end.next = null;
             pre.next = null;
 
-            pre.next = resV2(start);
+            pre.next = resList(start);
             pre = start;
             start.next = nextStart;
             start = nextStart;
@@ -793,12 +791,16 @@ public class MainTest {
     }
 
 
-
-    public Node resV2(Node head){
+    /**
+     * 反转单链表
+     * @param head
+     * @return
+     */
+    public Node resList(Node head){
         if (head == null || head.next == null){
             return head;
         }
-        Node newHead = resV2(head.next);
+        Node newHead = resList(head.next);
         head.next.next = head;
         head.next = null;
         return newHead;
