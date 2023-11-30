@@ -713,4 +713,119 @@ public class MainTest {
     }
 
 
+    /**
+     * 没k个元素一组，反转单链表
+     */
+    @Test
+    public void test34(){
+        int k = 5;
+        Node head = generateSingle();
+        Node tmpNode = new Node(-1, head);
+
+        Node pre = tmpNode;
+        Node start = head;
+        Node end = head;
+        while(end != null){
+            for(int i = 0;i < k -1 && end != null;i++){
+                end = end.next;
+            }
+            if (end == null){
+                break;
+            }
+            Node nextStart = end.next;
+            end.next = null;
+            pre.next = null;
+
+            pre.next = resV2(start);
+            pre = start;
+            start.next = nextStart;
+            start = nextStart;
+            end = nextStart;
+        }
+        printNode(tmpNode.next);
+    }
+
+    /**
+     * k个一组反转单链表
+     * @param head
+     * @param k
+     * @return
+     */
+    private Node resNode(Node head, int k) {
+        //k个一组反转链表
+        //需要四个指针
+        //指向上次反转之后的尾巴节点
+        Node preNode = new Node(-1,head);
+
+        //本次需要反转的头节点
+        Node start = head;
+        //本次需要反转的尾节点
+        Node end = head;
+        //指向下次需要反转的头节点
+        Node nextStart = null;
+        while(true){
+            //先确定end的位置
+            for (int i = 0; i < k; i++) {
+                end = end.next;
+                if (end == null) {
+                    //结束条件
+                    return preNode.next;
+                }
+            }
+            preNode.next = null;
+        }
+    }
+
+    /**
+     * 翻转单链表
+     */
+    private Node resSubNode(Node head) {
+        if (head == null || head.next == null){
+            return head;
+        }
+        Node cur = resSubNode(head.next);
+        head.next.next = head;
+        // head 原来的下一结点指向自己，所以 head 自己本身就不能再指向原来的下一结点了
+        // 否则会发生无限循环
+        head.next = null;
+        // 我们把每次反转后的结果传递给上一层
+        return cur;
+    }
+
+
+
+    public Node resV2(Node head){
+        if (head == null || head.next == null){
+            return head;
+        }
+        Node newHead = resV2(head.next);
+        head.next.next = head;
+        head.next = null;
+        return newHead;
+    }
+
+    private void printNode(Node head) {
+        if (head != null){
+            System.out.print(head.val);
+            head = head.next;
+        }
+        while (head != null){
+            System.out.print("->");
+            System.out.print(head.val);
+            head = head.next;
+        }
+    }
+
+    private Node generateSingle() {
+        Node node8 = new Node(8);
+        Node node7 = new Node(7, node8);
+        Node node6 = new Node(6, node7);
+        Node node5 = new Node(5, node6);
+        Node node4 = new Node(4, node5);
+        Node node3 = new Node(3, node4);
+        Node node2 = new Node(2, node3);
+        return new Node(1, node2);
+    }
+
+
 }
