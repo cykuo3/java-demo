@@ -1,4 +1,6 @@
 import cn.hutool.crypto.digest.MD5;
+import cn.hutool.system.HostInfo;
+import cn.hutool.system.SystemUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -8,9 +10,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
+import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -829,5 +834,102 @@ public class MainTest {
         return new Node(1, node2);
     }
 
+    @Test
+    public void test35(){
+        Node head = generateSingle();
 
+        resList(head);
+    }
+
+    @Test
+    public void test36(){
+        HostInfo hostInfo = SystemUtil.getHostInfo();
+        System.out.println(hostInfo.getName());
+        System.out.println(hostInfo.getAddress());
+    }
+
+    @Test
+    public void test37(){
+        String ip = "";
+        try {
+            // 获取本机IP
+            InetAddress addr = InetAddress.getLocalHost();
+            System.out.println(ip = addr.getHostAddress().toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void test38(){
+        System.out.println("9a74c263-a375-4047-8174-dd2e5fae07ff".length());
+    }
+
+    @Test
+    public void test39(){
+
+        int[] arr = new int[]{1,7,3,5,9,4,8};
+
+        //(1,7) (3,4,8)
+
+        //以第i个数字结尾的最长上升子序列长度 dp[i]
+        int[] dp = new int[arr.length];
+        int maxLength = 0;
+        for(int i = 0;i<arr.length;i++){
+            dp[i] = 1;
+            for(int j = 0;j < i; j ++){
+                if(arr[i] > arr[j]){
+                    dp[i] = Math.max(dp[i],dp[j] + 1);
+                }
+            }
+            maxLength = Math.max(dp[i],maxLength);
+        }
+
+        System.out.println("最长上升子序列长度:" + maxLength);
+    }
+
+    @Test
+    public void test40(){
+
+        System.out.println(new Date().getTime());
+    }
+
+    @Test
+    public void test41(){
+        Node head1 = generateSingle();
+        Node head2 = generateSingle();
+
+        Node res = merge(head1, head2, true);
+
+        printNode(res);
+    }
+
+    private Node merge(Node head1, Node head2, boolean useOne) {
+        if (head1 == null){
+            return head2;
+        }
+        if (head2 == null){
+            return head1;
+        }
+        if (useOne){
+            head1.next = merge(head1.next, head2, false);
+            return head1;
+        }else {
+            head2.next = merge(head1,head2.next,true);
+            return head2;
+        }
+    }
+
+    @Test
+    public void test42(){
+        System.out.println(String.format("000%d000", 123L));
+    }
+
+    @Test
+    public void test43(){
+        Month[] values = Month.values();
+        int code = new Random().nextInt(12);
+        System.out.println(values[code]);
+    }
 }
+
