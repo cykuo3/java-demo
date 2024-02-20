@@ -925,6 +925,9 @@ public class MainTest {
         System.out.println(String.format("000%d000", 123L));
     }
 
+    /**
+     * 随机输出一个月份，练习英语
+     */
     @Test
     public void test43(){
         Month[] values = Month.values();
